@@ -18,8 +18,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 
 # Load the Chronic Disease Indicators (CDI) data from a CSV file into a DataFrame
@@ -124,84 +122,6 @@ final_merged_df = pd.merge(cdi_merged_df, filtered_disease_counts,
 
 # Display information about the final DataFrame for verification
 final_merged_df.info()
-
-
-# Assuming 'data' is your DataFrame
-df = final_merged_df
-
-
-# --------------#
-# Visualization #
-# --------------#
-
-
-# -----------------------------------
-# Visualization 1: Bar Chart for Top 5 Cities by Average Incidence Rates
-# -----------------------------------
-
-# Calculate the average incidence rate for each combination of LocationAbbr and Topic
-avg_incidence = df.groupby(['LocationAbbr', 'Topic'])['IncidenceRate'].mean().reset_index()
-
-# Find the top 5 cities with the highest average incidence rates
-top_cities = avg_incidence.sort_values(by='IncidenceRate', ascending=False)\
-                .drop_duplicates(subset=['LocationAbbr'])\
-                .head(5)['LocationAbbr']
-
-# Filter the avg_incidence DataFrame to only include those top 5 cities
-top_cities_avg_incidence = avg_incidence[avg_incidence['LocationAbbr'].isin(top_cities)]
-
-# Create a larger figure size for the bar chart
-plt.figure(figsize=(14, 8))
-
-# Bar plot with LocationAbbr on the x-axis and IncidenceRate on the y-axis, colored by Topic
-sns.barplot(data=top_cities_avg_incidence, x='LocationAbbr', y='IncidenceRate', hue='Topic')
-
-# Enhancing the chart with labels and title
-plt.xlabel('Location Abbreviation', fontsize=12)
-plt.ylabel('Average Incidence Rate', fontsize=12)
-plt.title('Top 5 Cities: Average Incidence Rates by Location and Topic', fontsize=14)
-plt.xticks(rotation=45)  # Rotate x-axis labels for readability
-
-# Display the bar chart
-plt.tight_layout()
-plt.show()
-
-# -----------------------------------
-# Visualization 2: Nested Pie Chart for Topic and StratificationID1 Distribution
-# -----------------------------------
-
-# Calculate counts for 'Topic' and 'StratificationID1'
-topic_counts = df['Topic'].value_counts()
-stratification_counts = df['StratificationID1'].value_counts()
-
-# Setup for the nested pie chart
-plt.figure(figsize=(10, 7))
-
-# Define colors for the slices
-colors_outer = sns.color_palette('pastel', len(stratification_counts))
-colors_inner = sns.color_palette('bright', len(topic_counts))
-
-# Outer Pie Chart for StratificationID1
-plt.pie(stratification_counts, radius=3, colors=colors_outer, autopct='%1.1f%%', pctdistance=0.86, startangle=140)
-
-# Inner Pie Chart for Topic
-plt.pie(topic_counts, radius=2, colors=colors_inner, autopct='%1.1f%%', pctdistance=0.75, startangle=140)
-
-# Convert to a donut chart by adding a white circle in the center
-centre_circle = plt.Circle((0,0),0.6, color='black', fc='white', linewidth=0)
-fig = plt.gcf()
-fig.gca().add_artist(centre_circle)
-
-# Ensure the pie chart is drawn as a circle
-plt.axis('equal')
-plt.tight_layout()
-plt.title('Nested Pie Chart: Topic and StratificationID1 Distribution')
-
-# Add a legend outside the plot for clarity
-plt.legend(loc='center left', labels=['Outer: ' + s for s in stratification_counts.index] + ['Inner: ' + t for t in topic_counts.index], bbox_to_anchor=(1, 0.5))
-
-# Display the nested pie chart
-plt.show()
 
 # Sampling a fraction of the data for PCA analysis to make computations more manageable
 final_merged_df = final_merged_df.sample(frac=0.05, random_state=42)
@@ -319,7 +239,7 @@ plt.show()
 
 # --------- Applying KMeans Clustering with Optimal Number of Clusters ---------
 # Based on the Elbow Method plot, determine the appropriate number of clusters (manually identified here)
-n_clusters = 8
+n_clusters = 12
 
 # Initialize and fit KMeans with the determined number of clusters
 kmeans_pca = KMeans(n_clusters=n_clusters, random_state=42)
